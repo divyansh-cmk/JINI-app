@@ -1,0 +1,300 @@
+/* JINI Stylesheet - Premium Obsidian Nebula & Light Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@600&display=swap');
+
+:root {
+  /* Dark Mode Default Variables */
+  --bg-surface: #0b1326;
+  --bg-surface-dim: #0b1326;
+  --bg-surface-bright: #31394d;
+  --bg-surface-lowest: #060e20;
+  --bg-surface-low: #131b2e;
+  --bg-surface-container: #171f33;
+  --bg-surface-high: #222a3d;
+  --bg-surface-highest: #2d3449;
+  --on-surface: #dae2fd;
+  --on-surface-variant: #cfc2d6;
+  --outline: #988d9f;
+  --outline-variant: rgba(77, 67, 84, 0.4);
+  --primary: #ddb7ff;
+  --on-primary: #490080;
+  --primary-container: #b76dff;
+  --on-primary-container: #400071;
+  --secondary: #adc6ff;
+  --on-secondary: #002e6a;
+  --secondary-container: #0566d9;
+  --on-secondary-container: #e6ecff;
+  --error: #ffb4ab;
+  --glow-primary: rgba(221, 183, 255, 0.2);
+  --glow-secondary: rgba(173, 198, 255, 0.2);
+  --glass-bg: rgba(23, 31, 51, 0.4);
+  --glass-bg-hover: rgba(34, 42, 61, 0.6);
+  --card-border: rgba(221, 183, 255, 0.15);
+  --gradient-mascot: linear-gradient(135deg, #ddb7ff 0%, #adc6ff 100%);
+  --custom-cursor-color: #adc6ff;
+}
+
+html.light {
+  /* Light Mode Variables */
+  --bg-surface: #f4f6fc;
+  --bg-surface-dim: #ebedf5;
+  --bg-surface-bright: #ffffff;
+  --bg-surface-lowest: #e2e5f0;
+  --bg-surface-low: #eaedf7;
+  --bg-surface-container: #ffffff;
+  --bg-surface-high: #e2e6f3;
+  --bg-surface-highest: #d7dceb;
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
+  --outline: #64748b;
+  --outline-variant: rgba(100, 116, 139, 0.2);
+  --primary: #8b2cf5;
+  --on-primary: #ffffff;
+  --primary-container: #e8d5ff;
+  --on-primary-container: #3b0070;
+  --secondary: #1e56a0;
+  --on-secondary: #ffffff;
+  --secondary-container: #d6e4ff;
+  --on-secondary-container: #001a42;
+  --error: #ba1a1a;
+  --glow-primary: rgba(139, 44, 245, 0.15);
+  --glow-secondary: rgba(30, 86, 160, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(139, 44, 245, 0.2);
+  --gradient-mascot: linear-gradient(135deg, #8b2cf5 0%, #1e56a0 100%);
+  --custom-cursor-color: #1e56a0;
+}
+
+body {
+  background-color: var(--bg-surface);
+  color: var(--on-surface);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--outline-variant);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--primary);
+  box-shadow: 0 8px 30px var(--glow-primary);
+  background: var(--glass-bg-hover);
+}
+
+/* Liquid Styling */
+.liquid-button {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--primary-container) 100%);
+  color: var(--on-primary);
+  box-shadow: 0 4px 15px var(--glow-primary);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.liquid-button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 0 25px var(--primary);
+}
+
+.liquid-button:active {
+  transform: scale(0.95);
+}
+
+/* Animations */
+@keyframes pulse-neon {
+  0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 2px var(--primary)); }
+  50% { transform: scale(1.15); opacity: 0.85; filter: drop-shadow(0 0 8px var(--primary)); }
+}
+
+.neon-pulse {
+  animation: pulse-neon 2s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.floating-jini {
+  animation: float 6s infinite ease-in-out;
+}
+
+/* Custom Cursor */
+.custom-terminal-input {
+  caret-color: transparent;
+}
+
+.custom-terminal-input:focus {
+  caret-color: var(--custom-cursor-color);
+}
+
+/* Hide scrollbars but keep scrolling working */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Audio Wave Visualizer */
+.voice-wave-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 60px;
+}
+
+.voice-wave-bar {
+  width: 4px;
+  height: 10px;
+  background-color: var(--primary);
+  border-radius: 4px;
+  transition: height 0.1s ease, background-color 0.3s ease;
+}
+
+.voice-wave-container.speaking .voice-wave-bar {
+  animation: wave-bounce 1.2s ease-in-out infinite;
+}
+
+.voice-wave-container.speaking .voice-wave-bar:nth-child(2n) {
+  animation-delay: 0.1s;
+  background-color: var(--secondary);
+}
+.voice-wave-container.speaking .voice-wave-bar:nth-child(3n) {
+  animation-delay: 0.25s;
+}
+.voice-wave-container.speaking .voice-wave-bar:nth-child(4n) {
+  animation-delay: 0.4s;
+  background-color: var(--primary-container);
+}
+
+@keyframes wave-bounce {
+  0%, 100% { height: 10px; }
+  50% { height: 50px; }
+}
+
+/* Flip Flashcards */
+.flashcard-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flashcard-flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+/* Custom Toggle Switch */
+.theme-switch-slider {
+  background-color: var(--bg-surface-bright);
+}
+html.light .theme-switch-slider {
+  background-color: var(--primary-container);
+}
+
+/* JINI Chat materialization */
+.message-bubble-jini {
+  border-left: 3px solid var(--primary);
+  background: rgba(221, 183, 255, 0.05);
+  animation: materialize 0.5s ease-out forwards;
+}
+
+@keyframes materialize {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Interactive custom elements */
+.outline-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: rgba(221, 183, 255, 0.05);
+}
+
+/* Responsive transitions */
+.fade-section {
+  transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+}
+.fade-section.hidden-section {
+  display: none !important;
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+/* Cross-Device Notched & Safe-Area Positioning */
+.bottom-nav-container {
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.search-bar-container {
+  bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Ensure padding-bottom on main is tall enough to clear overlays on all devices */
+main {
+  padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Scroll adjustments for safe-areas on mobile webviews */
+@media (max-width: 640px) {
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Make lists scroll smoothly on iOS */
+  .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce dashboard sizes to fit small screens (like iPhone SE / Mini Androids) */
+  #greeting-title {
+    font-size: 2.25rem !important;
+    line-height: 1.25 !important;
+  }
+  
+  /* Make popups fill screen on mobile for easy dismiss */
+  #notification-popover, #profile-popover {
+    right: 16px !important;
+    left: 16px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}

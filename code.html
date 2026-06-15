@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>JINI | Premium Intelligent Companion</title>
+  
+  <!-- iOS Standalone Web App Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JINI">
+  <link rel="apple-touch-icon" href="logo.png">
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <!-- Custom Styles -->
+  <link href="styles.css" rel="stylesheet"/>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            surface: "var(--bg-surface)",
+            "on-surface": "var(--on-surface)",
+            "outline-variant": "var(--outline-variant)",
+            "surface-dim": "var(--bg-surface-dim)",
+            "surface-bright": "var(--bg-surface-bright)",
+            "surface-container-lowest": "var(--bg-surface-lowest)",
+            "surface-container-low": "var(--bg-surface-low)",
+            "surface-container": "var(--bg-surface-container)",
+            "surface-container-high": "var(--bg-surface-high)",
+            "surface-container-highest": "var(--bg-surface-highest)",
+            outline: "var(--outline)",
+            primary: "var(--primary)",
+            "on-primary": "var(--on-primary)",
+            "primary-container": "var(--primary-container)",
+            "on-primary-container": "var(--on-primary-container)",
+            secondary: "var(--secondary)",
+            "on-secondary": "var(--on-secondary)",
+            "secondary-container": "var(--secondary-container)",
+            "on-secondary-container": "var(--on-secondary-container)",
+            error: "var(--error)"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          spacing: {
+            "safe-area": "20px",
+            "section-gap-md": "48px",
+            "section-gap-lg": "80px",
+            "container-margin": "24px",
+            gutter: "16px",
+            unit: "4px"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface text-on-surface font-sans overflow-x-hidden min-h-screen">
+  
+  <!-- TOP APP BAR -->
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-surface/30 backdrop-blur-xl border-b border-outline-variant/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
+      <div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30 flex items-center justify-center bg-surface-container-low">
+        <img src="logo.png?v=1" alt="JINI Logo" class="w-full h-full object-cover"/>
+      </div>
+      <span class="font-extrabold text-2xl tracking-tighter bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">JINI</span>
+    </div>
+    
+    <div class="flex items-center gap-4 text-on-surface-variant">
+      <!-- Brain Mode Status Pill -->
+      <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-surface-container-low/50 rounded-full border border-outline-variant/10 cursor-pointer" onclick="navigateTo('home')">
+        <div id="brain-sync-indicator" class="w-2.5 h-2.5 rounded-full bg-[#39ff14] neon-pulse"></div>
+        <span id="brain-sync-text" class="text-xs font-mono tracking-wider text-on-surface-variant/80">BRAIN: ACTIVE</span>
+      </div>
+
+      <!-- Theme Switch Quick Button -->
+      <button class="hover:opacity-80 transition-opacity active:scale-95 duration-200" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+        <span id="quick-theme-icon" class="material-symbols-outlined">light_mode</span>
+      </button>
+
+      <!-- Notifications Trigger -->
+      <button class="hover:opacity-80 transition-opacity active:scale-95 duration-200 relative" onclick="togglePopover('notification-popover')">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+      </button>
+      
+      <!-- Profile Action Dropdown -->
+      <button class="hover:opacity-80 transition-opacity active:scale-95 duration-200 flex items-center gap-1 border border-outline-variant/20 rounded-full p-1 bg-surface-container-low/40" onclick="togglePopover('profile-popover')">
+        <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold overflow-hidden" id="header-avatar-container">
+          D
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- POPUPS & DROPDOWNS -->
+  <!-- Notifications Popover -->
+  <div id="notification-popover" class="hidden fixed top-16 right-6 z-50 w-80 glass-panel rounded-lg p-4 shadow-xl space-y-3">
+    <div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+      <h4 class="font-bold text-sm">Notifications</h4>
+      <button class="text-xs text-primary hover:underline" onclick="clearNotifications()">Clear All</button>
+    </div>
+    <div class="space-y-3 max-h-60 overflow-y-auto hide-scrollbar" id="notification-list">
+      <div class="text-xs space-y-1 p-2 bg-surface-bright/20 rounded-lg border border-outline-variant/10">
+        <div class="flex justify-between items-center font-semibold text-primary">
+          <span>AI Memory Synced</span>
+          <span class="text-[10px] text-on-surface-variant/60">Just now</span>
+        </div>
+        <p class="text-on-surface-variant">JINI updated details in your personal memory logs.</p>
+      </div>
+      <div class="text-xs space-y-1 p-2 bg-surface-bright/20 rounded-lg border border-outline-variant/10">
+        <div class="flex justify-between items-center font-semibold text-secondary">
+          <span>Daily Insights Ready</span>
+          <span class="text-[10px] text-on-surface-variant/60">2h ago</span>
+        </div>
+        <p class="text-on-surface-variant">Your productivity stats and insights are now ready for review.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Popover -->
+  <div id="profile-popover" class="hidden fixed top-16 right-6 z-50 w-64 glass-panel rounded-lg p-4 shadow-xl space-y-3">
+    <div class="flex items-center gap-3 border-b border-outline-variant/20 pb-3">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-on-primary font-bold text-lg" id="popover-avatar">
+        D
+      </div>
+      <div class="min-w-0">
+        <h4 class="font-bold text-sm truncate" id="popover-name">Divyansh</h4>
+        <span class="text-xs outline-chip px-2 py-0.5 rounded-full" id="popover-badge">FREE ACCOUNT</span>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1 text-sm">
+      <button class="flex items-center gap-2 p-2 hover:bg-surface-bright/30 rounded-lg text-left" onclick="navigateTo('profile'); togglePopover('profile-popover')">
+        <span class="material-symbols-outlined text-lg">settings</span>
+        Settings & Preferences
+      </button>
+      <button class="flex items-center gap-2 p-2 hover:bg-surface-bright/30 rounded-lg text-left" onclick="showAuthModal()">
+        <span class="material-symbols-outlined text-lg">login</span>
+        Sign in / Sync Accounts
+      </button>
+      <button class="flex items-center gap-2 p-2 hover:bg-surface-bright/30 rounded-lg text-left text-primary font-bold" onclick="showUpgradeModal()">
+        <span class="material-symbols-outlined text-lg">workspace_premium</span>
+        Upgrade to JINI Pro
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="pt-24 pb-36 px-4 md:px-8 max-w-7xl mx-auto min-h-screen">
+    
+    <!-- 1. HOME VIEW (DASHBOARD) -->
+    <section id="page-home" class="fade-section space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div class="md:col-span-7 space-y-5">
+          <span class="outline-chip px-4 py-1.5 rounded-full">ONLINE &amp; VIBING</span>
+          <h1 class="text-4xl md:text-6xl font-extrabold tracking-tighter leading-tight" id="greeting-title">
+            Yo, I'm JINI. <br/><span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Your AI companion.</span>
+          </h1>
+          <p class="text-on-surface-variant text-lg md:text-xl max-w-lg leading-relaxed">
+            Ready to learn, create, research, or manage tasks? Let's make something legendary today.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <button class="liquid-button px-6 py-3 rounded-full font-semibold text-sm flex items-center gap-2" onclick="navigateTo('chat')">
+              <span class="material-symbols-outlined">chat_bubble</span> Start Chatting
+            </button>
+            <button class="glass-card px-6 py-3 rounded-full font-semibold text-sm border border-outline-variant/30 flex items-center gap-2 hover:bg-surface-bright/30" onclick="showUpgradeModal()">
+              <span class="material-symbols-outlined text-primary">workspace_premium</span> View Plans
+            </button>
+          </div>
+        </div>
+        <div class="md:col-span-5 relative flex justify-center py-6 md:py-0">
+          <div class="absolute inset-0 bg-primary/10 blur-[100px] rounded-full"></div>
+          <!-- Mascot visual layout container -->
+          <div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center bg-surface-container-low border border-primary/20 rounded-full floating-jini shadow-[0_0_35px_rgba(221,183,255,0.25)] overflow-hidden">
+            <img src="logo.png?v=1" alt="JINI Mascot" class="w-[90%] h-[90%] object-contain rounded-full"/>
+            <div class="absolute -bottom-2 px-4 py-1 bg-surface-container-high/90 border border-outline-variant/20 rounded-full font-mono text-[10px] tracking-wider text-secondary">JINI AI MASCOT</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BENTO GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+        <!-- BRAIN STATUS CARD -->
+        <div class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-6 flex flex-col justify-between group hover:border-primary/30 transition-all duration-500">
+          <div class="flex justify-between items-start">
+            <div class="space-y-1">
+              <h3 class="text-xl font-bold">JINI Brain</h3>
+              <p class="text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">Neural Stability</p>
+            </div>
+            <div class="relative">
+              <div class="w-4 h-4 rounded-full bg-[#39ff14] neon-pulse"></div>
+            </div>
+          </div>
+          <div class="mt-8 space-y-4">
+            <div class="w-full bg-surface-bright/50 h-2 rounded-full overflow-hidden">
+              <div id="neural-stability-bar" class="bg-primary h-full w-[88%] rounded-full shadow-[0_0_10px_rgba(221,183,255,0.6)] transition-all duration-1000"></div>
+            </div>
+            <div class="flex justify-between font-mono text-[10px] text-on-surface-variant">
+              <span>Synaptic Memory</span>
+              <span id="stability-percentage">88% Stable</span>
+            </div>
+            <!-- Toggle Brain Mode Switch -->
+            <div class="flex justify-between items-center bg-surface-bright/30 p-2.5 rounded-lg border border-outline-variant/15">
+              <span class="text-xs font-semibold">Deep Thinking Mode</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="dashboard-brain-switch" class="sr-only peer" onchange="toggleBrainMode(this.checked)">
+                <div class="w-9 h-5 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK ACTION SHORTCUTS -->
+        <div class="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('email')">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">alternate_email</span>
+            </div>
+            <span class="font-bold text-sm">Write Email</span>
+          </button>
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-secondary/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('pdf')">
+            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">description</span>
+            </div>
+            <span class="font-bold text-sm">Analyze PDF</span>
+          </button>
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary-container/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('image')">
+            <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary-container transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">image</span>
+            </div>
+            <span class="font-bold text-sm">Generate Image</span>
+          </button>
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('explain')">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">school</span>
+            </div>
+            <span class="font-bold text-sm">Explain Topic</span>
+          </button>
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-secondary/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('code')">
+            <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">terminal</span>
+            </div>
+            <span class="font-bold text-sm">Code Solver</span>
+          </button>
+          <button class="bg-surface-container/20 backdrop-blur-xl border border-outline-variant/15 glass-inner-glow rounded-lg p-4 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary-container/50 hover:scale-[1.02] transition-all duration-300" onclick="triggerQuickAction('translate')">
+            <div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-on-primary-container transition-all duration-500">
+              <span class="material-symbols-outlined text-2xl">translate</span>
+            </div>
+            <span class="font-bold text-sm">Translate text</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- INSIGHTS AND RECENT ACTIVITY -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Daily Productivity Stats & Insights -->
+        <div class="lg:col-span-5 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-6 space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xl font-bold">Insights &amp; Stats</h3>
+            <span class="text-xs text-secondary font-mono">UPDATED LIVE</span>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-3 bg-surface-bright/20 rounded-lg border border-outline-variant/5">
+              <div class="text-lg font-bold text-primary" id="stat-chats">12</div>
+              <div class="text-[10px] text-on-surface-variant font-mono uppercase">Chats</div>
+            </div>
+            <div class="p-3 bg-surface-bright/20 rounded-lg border border-outline-variant/5">
+              <div class="text-lg font-bold text-secondary" id="stat-tools">8</div>
+              <div class="text-[10px] text-on-surface-variant font-mono uppercase">Tools Run</div>
+            </div>
+            <div class="p-3 bg-surface-bright/20 rounded-lg border border-outline-variant/5">
+              <div class="text-lg font-bold text-primary-container" id="stat-tokens">2.4k</div>
+              <div class="text-[10px] text-on-surface-variant font-mono uppercase">Tokens</div>
+            </div>
+          </div>
+
+          <!-- Micro bar chart showing daily usage -->
+          <div class="space-y-2">
+            <span class="text-xs font-semibold text-on-surface-variant">Weekly Interaction Profile</span>
+            <div class="flex items-end justify-between h-20 pt-2 px-2 bg-surface-bright/10 rounded-lg border border-outline-variant/5">
+              <div class="w-6 bg-primary/40 rounded-t h-[40%]" title="Mon"></div>
+              <div class="w-6 bg-primary/50 rounded-t h-[55%]" title="Tue"></div>
+              <div class="w-6 bg-primary/70 rounded-t h-[35%]" title="Wed"></div>
+              <div class="w-6 bg-secondary/80 rounded-t h-[80%]" title="Thu"></div>
+              <div class="w-6 bg-primary rounded-t h-[65%]" title="Fri"></div>
+              <div class="w-6 bg-secondary rounded-t h-[90%]" title="Sat"></div>
+              <div class="w-6 bg-gradient-to-t from-primary to-secondary rounded-t h-[95%]" title="Sun"></div>
+            </div>
+            <div class="flex justify-between font-mono text-[9px] text-on-surface-variant/70 px-1">
+              <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+            </div>
+          </div>
+
+          <!-- Daily Quote Insight -->
+          <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
+            <span class="text-xs font-mono text-primary font-bold uppercase tracking-wider block mb-1">💡 DAILY INSIGHT</span>
+            <p class="text-xs text-on-surface-variant italic leading-relaxed" id="daily-insight-text">
+              "Your focus on coding tutors has surged by 45% this week. Coding helpers are most stable when Brain Mode is enabled."
+            </p>
+          </div>
+        </div>
+
+        <!-- Recent Activity Feed -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex justify-between items-end">
+            <h3 class="text-xl font-bold">Recent Activity</h3>
+            <button class="text-xs text-primary font-bold hover:underline" onclick="clearActivityFeed()">Clear All</button>
+          </div>
+
+          <div class="space-y-3" id="activity-feed-list">
+            <!-- Activity 1 -->
+            <div class="group bg-surface-container-low/40 border border-outline-variant/10 rounded-lg p-4 flex items-center gap-4 hover:bg-surface-container-high/40 transition-colors">
+              <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-2xl">image</span>
+              </div>
+              <div class="flex-grow min-w-0">
+                <h4 class="font-bold text-on-surface text-sm truncate">Cyberpunk Concept Art</h4>
+                <p class="text-on-surface-variant text-xs truncate">Generated Image • 2 hours ago</p>
+              </div>
+              <button class="text-on-surface-variant hover:text-primary transition-colors" onclick="deleteActivityItem(this)">
+                <span class="material-symbols-outlined text-lg">delete</span>
+              </button>
+            </div>
+            <!-- Activity 2 -->
+            <div class="group bg-surface-container-low/40 border border-outline-variant/10 rounded-lg p-4 flex items-center gap-4 hover:bg-surface-container-high/40 transition-colors">
+              <div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+                <span class="material-symbols-outlined text-2xl">chat_bubble</span>
+              </div>
+              <div class="flex-grow min-w-0">
+                <h4 class="font-bold text-on-surface text-sm truncate">Homework Solver Math help</h4>
+                <p class="text-on-surface-variant text-xs truncate">Chat Companion • 5 hours ago</p>
+              </div>
+              <button class="text-on-surface-variant hover:text-primary transition-colors" onclick="deleteActivityItem(this)">
+                <span class="material-symbols-outlined text-lg">delete</span>
+              </button>
+            </div>
+            <!-- Activity 3 -->
+            <div class="group bg-surface-container-low/40 border border-outline-variant/10 rounded-lg p-4 flex items-center gap-4 hover:bg-surface-container-high/40 transition-colors">
+              <div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary-container">
+                <span class="material-symbols-outlined text-2xl">description</span>
+              </div>
+              <div class="flex-grow min-w-0">
+                <h4 class="font-bold text-on-surface text-sm truncate">Contract_Draft_Version2.pdf</h4>
+                <p class="text-on-surface-variant text-xs truncate">Document Intelligence Analysis • Yesterday</p>
+              </div>
+              <button class="text-on-surface-variant hover:text-primary transition-colors" onclick="deleteActivityItem(this)">
+                <span class="material-symbols-outlined text-lg">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PRICING MONETIZATION DISPLAY -->
+      <div class="pt-8 space-y-6">
+        <div class="text-center space-y-2 max-w-2xl mx-auto">
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Unlock the Full Potential of JINI</h2>
+          <p class="text-on-surface-variant text-sm">Choose the right path for your workflow, from solo creators to entire development teams.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Free Plan -->
+          <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-6 flex flex-col justify-between hover:border-outline-variant/40 transition-all duration-300">
+            <div class="space-y-4">
+              <div class="space-y-1">
+                <h3 class="text-lg font-bold">JINI Free</h3>
+                <p class="text-on-surface-variant text-xs">Essential companion tools</p>
+              </div>
+              <div class="text-3xl font-extrabold">$0<span class="text-sm font-normal text-on-surface-variant">/month</span></div>
+              <ul class="space-y-2 text-xs text-on-surface-variant pt-2 border-t border-outline-variant/10">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> 25 AI Chat conversations / day</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Standard voice companion limits</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Access to basic writing assistants</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Local notes &amp; planner options</li>
+              </ul>
+            </div>
+            <button class="mt-8 w-full border border-outline-variant/30 py-2.5 rounded-full text-xs font-semibold hover:bg-surface-bright/20" disabled>Active Plan</button>
+          </div>
+          
+          <!-- Pro Plan -->
+          <div class="bg-surface-container/40 border border-primary/40 rounded-lg p-6 flex flex-col justify-between relative shadow-[0_0_20px_rgba(221,183,255,0.08)] scale-[1.02] md:scale-105 hover:border-primary transition-all duration-300">
+            <div class="absolute -top-3.5 right-6 px-3 py-1 bg-primary text-on-primary rounded-full text-[9px] font-bold tracking-wider">POPULAR CHOICE</div>
+            <div class="space-y-4">
+              <div class="space-y-1">
+                <h3 class="text-lg font-bold">JINI Pro</h3>
+                <p class="text-on-surface-variant text-xs">For high-gear productivity</p>
+              </div>
+              <div class="text-3xl font-extrabold">$15<span class="text-sm font-normal text-on-surface-variant">/month</span></div>
+              <ul class="space-y-2 text-xs text-on-surface-variant pt-2 border-t border-outline-variant/10">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Unlimited chats &amp; instant responses</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> High priority JINI Brain Reasoning</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Advanced Voice Synthesis &amp; OCR Vision</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Larger doc uploads (PDF/DOCX/PPT)</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Complete personalization sync</li>
+              </ul>
+            </div>
+            <button class="mt-8 w-full liquid-button py-2.5 rounded-full text-xs font-semibold" onclick="subscribeToPlan('Pro', 15)">Upgrade to Pro</button>
+          </div>
+          
+          <!-- Enterprise Plan -->
+          <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-6 flex flex-col justify-between hover:border-secondary transition-all duration-300">
+            <div class="space-y-4">
+              <div class="space-y-1">
+                <h3 class="text-lg font-bold">JINI Enterprise</h3>
+                <p class="text-on-surface-variant text-xs">For teams &amp; business scale</p>
+              </div>
+              <div class="text-3xl font-extrabold">$49<span class="text-sm font-normal text-on-surface-variant">/month</span></div>
+              <ul class="space-y-2 text-xs text-on-surface-variant pt-2 border-t border-outline-variant/10">
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Everything in Pro tier</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Unlimited shared workspaces</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Collaborative group task tracking</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Enterprise-grade data encryption</li>
+                <li class="flex items-center gap-2"><span class="material-symbols-outlined text-xs text-[#39ff14]">check</span> Dedicated API endpoints support</li>
+              </ul>
+            </div>
+            <button class="mt-8 w-full border border-outline-variant/30 py-2.5 rounded-full text-xs font-semibold hover:border-secondary hover:text-secondary hover:bg-surface-bright/20" onclick="subscribeToPlan('Enterprise', 49)">Upgrade to Enterprise</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. CHAT VIEW -->
+    <section id="page-chat" class="fade-section hidden-section grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-220px)]">
+      <!-- Chat Sidebar (History Search) -->
+      <div class="lg:col-span-1 glass-panel rounded-lg p-4 flex flex-col justify-between h-full">
+        <div class="space-y-4 flex-grow overflow-hidden flex flex-col">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-sm">Chat History</h3>
+            <button class="text-xs text-primary hover:underline flex items-center gap-0.5" onclick="startNewChat()">
+              <span class="material-symbols-outlined text-xs">add</span> New
+            </button>
+          </div>
+          
+          <!-- Search input -->
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-2.5 text-sm text-on-surface-variant/50">search</span>
+            <input type="text" id="chat-history-search" class="w-full bg-surface-bright/30 border border-outline-variant/20 rounded-lg pl-9 pr-3 py-1.5 text-xs focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-on-surface-variant/40" placeholder="Search chats..." oninput="filterChatHistory(this.value)">
+          </div>
+
+          <!-- History List -->
+          <div class="space-y-1 overflow-y-auto hide-scrollbar flex-grow" id="chat-history-list">
+            <!-- Simulated item -->
+            <div class="p-2.5 bg-primary/10 rounded-lg border border-primary/20 text-xs font-semibold cursor-pointer flex justify-between items-center chat-history-item" onclick="loadChat(0)">
+              <span class="truncate pr-2">Current JINI Chat Session</span>
+              <span class="text-[9px] text-primary/70">ACTIVE</span>
+            </div>
+            <div class="p-2.5 hover:bg-surface-bright/30 rounded-lg text-xs cursor-pointer flex justify-between items-center text-on-surface-variant/80 chat-history-item" onclick="loadChat(1)">
+              <span class="truncate pr-2">Math homework help &amp; scientific formulas</span>
+              <span class="text-[9px] text-on-surface-variant/40">5h ago</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-outline-variant/20 pt-3 mt-3 space-y-2">
+          <!-- Chat specific settings -->
+          <div class="space-y-1">
+            <label class="text-[10px] text-on-surface-variant font-mono uppercase">Companion Personality</label>
+            <select id="chat-personality-select" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary" onchange="changeChatPersonality(this.value)">
+              <option value="friendly">JINI Friendly (Default)</option>
+              <option value="professional">JINI Professional</option>
+              <option value="coding">JINI Coding Guru</option>
+              <option value="academic">JINI Academic Explainer</option>
+              <option value="creative">JINI Creative Muse</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between text-xs bg-surface-bright/20 p-2 rounded-lg">
+            <span class="font-semibold text-xs flex items-center gap-1"><span class="material-symbols-outlined text-sm text-primary">psychology</span> JINI Brain</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="chat-brain-switch" class="sr-only peer" onchange="toggleBrainMode(this.checked)">
+              <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Area -->
+      <div class="lg:col-span-3 glass-panel rounded-lg flex flex-col justify-between h-full overflow-hidden">
+        <!-- Message header -->
+        <div class="p-4 border-b border-outline-variant/15 flex justify-between items-center bg-surface-bright/10">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#39ff14]"></span>
+            <div>
+              <span class="font-bold text-sm" id="chat-header-name">JINI Friendly</span>
+              <span class="text-[9px] text-on-surface-variant/60 block">Memory Sync Enabled</span>
+            </div>
+          </div>
+          <button class="text-on-surface-variant hover:text-primary" onclick="clearCurrentChat()" title="Reset chat window">
+            <span class="material-symbols-outlined text-lg">delete_sweep</span>
+          </button>
+        </div>
+
+        <!-- Scrollable content screen -->
+        <div class="flex-grow p-4 overflow-y-auto space-y-4" id="chat-message-screen">
+          <!-- Welcome Message -->
+          <div class="flex justify-start items-start gap-2 max-w-[85%]">
+            <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-primary/20 bg-surface-container-low">
+              <img src="logo.png?v=1" alt="JINI" class="w-full h-full object-cover"/>
+            </div>
+            <div class="message-bubble-jini p-4 rounded-lg space-y-3 flex-grow">
+              <p class="text-xs leading-relaxed" id="welcome-message-text">
+                Hello, I'm JINI. Your intelligent AI companion. I can help you learn, create, research, solve problems, manage tasks, and achieve your goals. How can I assist you today?
+              </p>
+            </div>
+          </div>
+
+          <!-- Suggestion chips wrapper -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4" id="chat-suggestion-container">
+            <button class="p-2.5 bg-surface-bright/20 border border-outline-variant/15 hover:border-primary/40 rounded-lg text-left text-xs hover:scale-[1.01] transition-all" onclick="populateAndSend('Help me write a professional email thanking my team.')">
+              <span class="font-semibold text-primary block mb-0.5">📧 Email Writer</span>
+              <span class="text-[10px] text-on-surface-variant truncate block">Thank my team for finishing the project on time...</span>
+            </button>
+            <button class="p-2.5 bg-surface-bright/20 border border-outline-variant/15 hover:border-primary/40 rounded-lg text-left text-xs hover:scale-[1.01] transition-all" onclick="populateAndSend('Explain quantum computing to a 10 year old.')">
+              <span class="font-semibold text-secondary block mb-0.5">🔬 Homework Help</span>
+              <span class="text-[10px] text-on-surface-variant truncate block">Explain quantum computing using building blocks...</span>
+            </button>
+            <button class="p-2.5 bg-surface-bright/20 border border-outline-variant/15 hover:border-primary/40 rounded-lg text-left text-xs hover:scale-[1.01] transition-all" onclick="populateAndSend('Write a node.js function to generate JWT tokens.')">
+              <span class="font-semibold text-primary-container block mb-0.5">💻 Coding Tutor</span>
+              <span class="text-[10px] text-on-surface-variant truncate block">Write a node.js helper function to sign a payload...</span>
+            </button>
+            <button class="p-2.5 bg-surface-bright/20 border border-outline-variant/15 hover:border-primary/40 rounded-lg text-left text-xs hover:scale-[1.01] transition-all" onclick="populateAndSend('Draft a catchy LinkedIn post explaining the magic of AI memory.')">
+              <span class="font-semibold text-primary block mb-0.5">✍️ Writing Tools</span>
+              <span class="text-[10px] text-on-surface-variant truncate block">Write a short post sharing how memory makes bots cooler...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selected files container -->
+        <div class="px-4 py-2 bg-surface-bright/10 border-t border-outline-variant/10 hidden items-center gap-2" id="chat-uploaded-files-container">
+          <!-- File pills inserted here -->
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="p-4 border-t border-outline-variant/15 bg-surface-bright/5">
+          <div class="bg-surface-container-lowest border border-outline-variant/30 focus-within:border-primary/60 rounded-xl p-2 flex flex-col gap-2 transition-colors">
+            
+            <textarea id="chat-main-input" rows="2" class="bg-transparent border-none focus:ring-0 w-full text-xs text-on-surface placeholder:text-on-surface-variant/40 custom-terminal-input resize-none" placeholder="Ask JINI anything..." onkeydown="handleChatInputKeydown(event)"></textarea>
+            
+            <div class="flex justify-between items-center pt-1 border-t border-outline-variant/10">
+              <div class="flex items-center gap-1.5 text-on-surface-variant">
+                <!-- Attach Document Trigger -->
+                <button class="p-1.5 hover:bg-surface-bright/40 hover:text-primary rounded-lg transition-colors relative" onclick="triggerFileInput('document-upload-trigger')" title="Attach PDF/DOCX Document Intelligence">
+                  <span class="material-symbols-outlined text-lg">attach_file</span>
+                  <input type="file" id="document-upload-trigger" class="hidden" accept=".pdf,.docx,.txt" onchange="handleDocumentUpload(this)">
+                </button>
+
+                <!-- Attach Screenshot / Vision Trigger -->
+                <button class="p-1.5 hover:bg-surface-bright/40 hover:text-primary rounded-lg transition-colors relative" onclick="triggerFileInput('image-upload-trigger')" title="Upload Image for AI Vision Analysis">
+                  <span class="material-symbols-outlined text-lg">image</span>
+                  <input type="file" id="image-upload-trigger" class="hidden" accept="image/*" onchange="handleImageUpload(this)">
+                </button>
+
+                <!-- Voice Dictation Activation -->
+                <button id="chat-voice-dictation-btn" class="p-1.5 hover:bg-surface-bright/40 hover:text-primary rounded-lg transition-colors" onclick="toggleChatVoiceDictation()" title="Speech-to-Text Input">
+                  <span class="material-symbols-outlined text-lg">mic</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-[9px] font-mono text-on-surface-variant/50 hidden sm:inline" id="chat-char-counter">0 chars</span>
+                <button class="p-2 rounded-full bg-primary text-on-primary hover:scale-105 active:scale-95 transition-transform" onclick="sendChatMessage()">
+                  <span class="material-symbols-outlined text-sm">send</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. WORKSPACE VIEW -->
+    <section id="page-workspace" class="fade-section hidden-section space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant/20 pb-4">
+        <div>
+          <h2 class="text-2xl font-extrabold tracking-tight">JINI Personal Workspace</h2>
+          <p class="text-xs text-on-surface-variant">Save chats, organize documents, track goals, and generate team workspace links.</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="border border-outline-variant/30 hover:border-primary/50 text-xs px-4 py-2 rounded-full font-semibold bg-surface-container-low/40" onclick="showShareWorkspaceModal()">
+            <span class="material-symbols-outlined text-xs align-middle mr-1">group</span> Share Workspace
+          </button>
+          <button class="liquid-button text-xs px-4 py-2 rounded-full font-semibold" onclick="promptCreateFolder()">
+            <span class="material-symbols-outlined text-xs align-middle mr-1">create_new_folder</span> New Folder
+          </button>
+        </div>
+      </div>
+
+      <!-- Folders & Active Projects Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Sidebar folder tabs list -->
+        <div class="md:col-span-1 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-4 h-fit space-y-3">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest block">Folders</span>
+          <div class="space-y-1" id="workspace-folders-list">
+            <!-- Folders inserted here -->
+            <button class="w-full text-left p-2.5 rounded-lg text-xs font-semibold bg-primary/10 border border-primary/20 flex justify-between items-center workspace-folder-tab active-folder" onclick="selectWorkspaceFolder('all')">
+              <span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-primary">folder_open</span> All Projects</span>
+              <span class="text-[9px] px-1.5 py-0.2 bg-primary/20 rounded font-mono text-primary" id="all-folders-count">3</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Files list panel -->
+        <div class="md:col-span-3 space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-on-surface-variant" id="selected-folder-title">All Workspace Projects</h3>
+            <button class="text-xs text-secondary font-semibold hover:underline" onclick="promptCreateProject()">+ Add Project Asset</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="workspace-projects-grid">
+            <!-- Project Cards inserted here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TOOLS VIEW -->
+    <section id="page-tools" class="fade-section hidden-section space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold tracking-tight">AI Multi-Tool Ecosystem</h2>
+        <p class="text-xs text-on-surface-variant">Access writing, learning, translation, daily planner and deep web-research modules.</p>
+      </div>
+
+      <!-- Mini Subnavigation Tabs -->
+      <div class="flex border-b border-outline-variant/15 text-sm gap-1 overflow-x-auto hide-scrollbar">
+        <button class="px-4 py-2.5 border-b-2 border-primary font-bold text-xs uppercase tracking-wider text-primary tool-subtab active" onclick="switchToolSubtab('writing', this)">Writing Suite</button>
+        <button class="px-4 py-2.5 border-b-2 border-transparent hover:border-outline font-semibold text-xs uppercase tracking-wider text-on-surface-variant tool-subtab" onclick="switchToolSubtab('learning', this)">Learning & Tutor</button>
+        <button class="px-4 py-2.5 border-b-2 border-transparent hover:border-outline font-semibold text-xs uppercase tracking-wider text-on-surface-variant tool-subtab" onclick="switchToolSubtab('productivity', this)">Productivity Suite</button>
+        <button class="px-4 py-2.5 border-b-2 border-transparent hover:border-outline font-semibold text-xs uppercase tracking-wider text-on-surface-variant tool-subtab" onclick="switchToolSubtab('research', this)">Research Mode</button>
+      </div>
+
+      <!-- WRITING SUITE PANEL -->
+      <div id="tool-subpanel-writing" class="tool-subpanel grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4 h-fit">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest block">Writing Form</span>
+          
+          <div class="space-y-1">
+            <label class="text-xs font-semibold">Select tool type</label>
+            <select id="writing-tool-type" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary" onchange="adaptWritingFormLabels(this.value)">
+              <option value="email">Email Writer</option>
+              <option value="essay">Essay Writer</option>
+              <option value="blog">Blog Creator</option>
+              <option value="social">Social Media Post Creator</option>
+              <option value="resume">Resume Professional Builder</option>
+              <option value="coverletter">Cover Letter Generator</option>
+              <option value="story">Story &amp; Novel Generator</option>
+              <option value="grammar">Grammar Corrector</option>
+              <option value="summary">Text Summarizer</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label id="writing-label-title" class="text-xs font-semibold">Subject / Theme</label>
+            <input type="text" id="writing-input-title" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40" placeholder="e.g. Monthly project wrapup">
+          </div>
+
+          <div class="space-y-1">
+            <label id="writing-label-prompt" class="text-xs font-semibold">Key Instructions / Points</label>
+            <textarea id="writing-input-prompt" rows="3" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40 resize-none" placeholder="Include metrics, thank the designers, and set deadline to Friday..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold">Tone</label>
+              <select id="writing-input-tone" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary">
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="witty">Witty</option>
+                <option value="bold">Bold</option>
+                <option value="academic">Academic</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-semibold">Length</label>
+              <select id="writing-input-length" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary">
+                <option value="short">Short (1-2 paragraphs)</option>
+                <option value="medium">Medium (3-5 paragraphs)</option>
+                <option value="long">Detailed / Long</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="w-full liquid-button py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-1.5" onclick="executeWritingTool()">
+            <span class="material-symbols-outlined text-sm">auto_awesome</span> Generate Content
+          </button>
+        </div>
+
+        <div class="lg:col-span-2 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 flex flex-col justify-between min-h-[400px]">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center border-b border-outline-variant/20 pb-3">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-on-surface-variant">Generated Output</h3>
+              <button class="text-xs text-primary font-bold flex items-center gap-1" onclick="copyWritingOutput()">
+                <span class="material-symbols-outlined text-xs">content_copy</span> Copy Output
+              </button>
+            </div>
+            <div class="text-xs leading-relaxed space-y-3 font-mono text-on-surface/90 overflow-y-auto max-h-[350px] p-3 bg-surface-bright/20 border border-outline-variant/10 rounded-lg whitespace-pre-wrap select-all" id="writing-output-area">
+              Your generated text will appear here. Select a tool, fill out the form parameters, and hit generate.
+            </div>
+          </div>
+          <div class="text-[10px] text-on-surface-variant font-mono">Word count: <span id="writing-word-counter">0</span> words</div>
+        </div>
+      </div>
+
+      <!-- LEARNING & TUTOR PANEL -->
+      <div id="tool-subpanel-learning" class="tool-subpanel hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4 h-fit">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest block">Learning Modules</span>
+          
+          <div class="flex flex-col gap-2">
+            <button class="w-full text-left p-3 rounded-lg text-xs font-semibold bg-primary/10 border border-primary/20 flex justify-between items-center learning-module-btn active" onclick="switchLearningModule('explain', this)">
+              <span>Explain Any Topic</span>
+              <span class="material-symbols-outlined text-sm text-primary">school</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-lg text-xs font-semibold hover:bg-surface-bright/20 flex justify-between items-center learning-module-btn" onclick="switchLearningModule('math', this)">
+              <span>Math &amp; Science Helper</span>
+              <span class="material-symbols-outlined text-sm text-on-surface-variant">calculate</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-lg text-xs font-semibold hover:bg-surface-bright/20 flex justify-between items-center learning-module-btn" onclick="switchLearningModule('translator', this)">
+              <span>Translator Assistant</span>
+              <span class="material-symbols-outlined text-sm text-on-surface-variant">translate</span>
+            </button>
+            <button class="w-full text-left p-3 rounded-lg text-xs font-semibold hover:bg-surface-bright/20 flex justify-between items-center learning-module-btn" onclick="switchLearningModule('flashcards', this)">
+              <span>Flashcards &amp; Quizzes</span>
+              <span class="material-symbols-outlined text-sm text-on-surface-variant">quiz</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 min-h-[400px]">
+          <!-- Module 1: Explain Topic -->
+          <div id="learn-module-explain" class="learn-module-view space-y-4">
+            <h3 class="font-bold text-sm">Concept explainer</h3>
+            <div class="flex gap-2">
+              <input type="text" id="explain-topic-input" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40" placeholder="e.g. Photosynthesis, Relativity, Blockchain">
+              <button class="liquid-button text-xs px-6 py-2 rounded-full font-bold" onclick="generateTopicExplanation()">Explain</button>
+            </div>
+            <div class="text-xs leading-relaxed space-y-2 p-3 bg-surface-bright/20 border border-outline-variant/10 rounded-lg font-sans max-h-80 overflow-y-auto" id="explain-output">
+              Explanation results will be displayed here.
+            </div>
+          </div>
+
+          <!-- Module 2: Math / Science -->
+          <div id="learn-module-math" class="learn-module-view hidden space-y-4">
+            <h3 class="font-bold text-sm">Step-by-step problem solver</h3>
+            <div class="flex gap-2">
+              <input type="text" id="math-problem-input" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40" placeholder="e.g. Solve for x: 3x + 12 = 36">
+              <button class="liquid-button text-xs px-6 py-2 rounded-full font-bold" onclick="solveMathProblem()">Solve</button>
+            </div>
+            <div class="text-xs leading-relaxed space-y-2 p-3 bg-surface-bright/20 border border-outline-variant/10 rounded-lg font-mono max-h-80 overflow-y-auto" id="math-output">
+              Math solutions will be displayed here with detailed execution steps.
+            </div>
+          </div>
+
+          <!-- Module 3: Translator -->
+          <div id="learn-module-translator" class="learn-module-view hidden space-y-4">
+            <h3 class="font-bold text-sm">Real-time translator</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-[10px] text-on-surface-variant font-mono">TARGET LANGUAGE</label>
+                <select id="translator-lang" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary">
+                  <option value="spanish">Spanish (Español)</option>
+                  <option value="french">French (Français)</option>
+                  <option value="japanese">Japanese (日本語)</option>
+                  <option value="german">German (Deutsch)</option>
+                  <option value="hindi">Hindi (हिन्दी)</option>
+                </select>
+              </div>
+            </div>
+            <textarea id="translator-text" rows="3" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40 resize-none" placeholder="Enter text to translate..."></textarea>
+            <button class="liquid-button text-xs px-6 py-2 rounded-full font-bold" onclick="translateText()">Translate</button>
+            <div class="text-xs leading-relaxed p-3 bg-surface-bright/20 border border-outline-variant/10 rounded-lg font-sans text-secondary" id="translator-output">
+              Translations will appear here.
+            </div>
+          </div>
+
+          <!-- Module 4: Flashcards & Quizzes -->
+          <div id="learn-module-flashcards" class="learn-module-view hidden space-y-6">
+            <div class="flex justify-between items-center">
+              <h3 class="font-bold text-sm">Study Flashcards</h3>
+              <button class="text-xs text-primary font-bold hover:underline" onclick="createQuiz()">Run Quiz</button>
+            </div>
+            
+            <!-- Interactive Fliping Card -->
+            <div class="w-72 h-44 mx-auto perspective cursor-pointer" onclick="flipFlashcard(this)">
+              <div class="flashcard-inner relative w-full h-full text-center rounded-xl border border-primary/30 shadow-lg" id="flashcard-element">
+                <!-- Front -->
+                <div class="flashcard-front absolute inset-0 bg-surface-bright flex flex-col justify-center items-center p-4 rounded-xl">
+                  <span class="text-[10px] font-mono text-primary uppercase tracking-widest mb-2">QUESTION</span>
+                  <p class="text-sm font-semibold leading-relaxed" id="flashcard-front-text">What is the capital of Spain?</p>
+                  <span class="text-[9px] text-on-surface-variant/50 mt-4 italic">Tap to flip card</span>
+                </div>
+                <!-- Back -->
+                <div class="flashcard-back absolute inset-0 bg-surface-container flex flex-col justify-center items-center p-4 rounded-xl">
+                  <span class="text-[10px] font-mono text-secondary uppercase tracking-widest mb-2">ANSWER</span>
+                  <p class="text-sm font-semibold leading-relaxed text-secondary" id="flashcard-back-text">Madrid</p>
+                  <span class="text-[9px] text-on-surface-variant/50 mt-4 italic">Tap to flip card</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div class="border-t border-outline-variant/20 pt-4 hidden space-y-3" id="quiz-container">
+              <span class="text-xs font-mono text-primary font-bold uppercase tracking-wider block">✍️ POP QUIZ</span>
+              <p class="text-xs font-semibold" id="quiz-question">Which HTML element is used to define native disclosures?</p>
+              <div class="grid grid-cols-2 gap-2 text-xs" id="quiz-options">
+                <!-- Buttons added in app.js -->
+              </div>
+              <p class="text-xs font-semibold text-secondary text-center hidden" id="quiz-status"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTIVITY SUITE PANEL -->
+      <div id="tool-subpanel-productivity" class="tool-subpanel hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Column 1: Notes -->
+          <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 flex flex-col justify-between min-h-[350px]">
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm">AI Note Keeper</h3>
+                <button class="text-xs text-primary font-bold hover:underline" onclick="addNewNote()">+ New Note</button>
+              </div>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-2 top-2 text-sm text-on-surface-variant/50">search</span>
+                <input type="text" class="w-full bg-surface-bright/30 border border-outline-variant/20 rounded-lg pl-7 pr-3 py-1 text-xs focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-on-surface-variant/40" placeholder="Search notes..." oninput="filterNotes(this.value)">
+              </div>
+              <div class="space-y-2 max-h-48 overflow-y-auto hide-scrollbar" id="productivity-notes-list">
+                <!-- Notes list -->
+              </div>
+            </div>
+            
+            <div id="active-note-editor" class="hidden border-t border-outline-variant/20 pt-3 space-y-2">
+              <input type="text" id="note-edit-title" class="w-full bg-surface-container-high border-none text-xs font-bold p-1 focus:ring-1 focus:ring-primary rounded" placeholder="Note Title">
+              <textarea id="note-edit-content" rows="3" class="w-full bg-surface-container-high border-none text-[11px] p-1 resize-none focus:ring-1 focus:ring-primary rounded" placeholder="Content..."></textarea>
+              <div class="flex justify-end gap-2 text-[10px]">
+                <button class="px-2 py-1 bg-surface-container-highest rounded font-semibold text-on-surface-variant" onclick="closeNoteEditor()">Cancel</button>
+                <button class="px-2 py-1 bg-primary text-on-primary rounded font-semibold" onclick="saveNoteEdits()">Save</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Todo Lists & Habits -->
+          <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4 min-h-[350px]">
+            <div class="space-y-3">
+              <h3 class="font-bold text-sm">To-do lists &amp; Reminders</h3>
+              <div class="flex gap-2">
+                <input type="text" id="todo-input-text" class="w-full bg-surface-bright/30 border border-outline-variant/20 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary" placeholder="Add a new task...">
+                <button class="p-1.5 rounded-lg bg-primary text-on-primary hover:scale-105 active:scale-95 transition-transform" onclick="addNewTodo()">
+                  <span class="material-symbols-outlined text-sm">add</span>
+                </button>
+              </div>
+              <div class="space-y-1.5 max-h-28 overflow-y-auto hide-scrollbar" id="productivity-todo-list">
+                <!-- Todo list items -->
+              </div>
+            </div>
+
+            <div class="border-t border-outline-variant/10 pt-3 space-y-3">
+              <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm">Habit Tracker</h3>
+                <div class="flex items-center gap-1">
+                  <!-- Progress ring representation -->
+                  <div class="relative w-5 h-5">
+                    <svg class="w-full h-full transform -rotate-90">
+                      <circle cx="10" cy="10" r="8" stroke="currentColor" class="text-surface-bright" stroke-width="2" fill="transparent"/>
+                      <circle cx="10" cy="10" r="8" stroke="currentColor" class="text-primary" stroke-width="2" fill="transparent" stroke-dasharray="50" id="habit-progress-circle"/>
+                    </svg>
+                  </div>
+                  <span id="habit-progress-text" class="text-[10px] font-mono text-primary font-bold">50%</span>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-xs" id="habit-list-container">
+                <!-- Habits checkboxes -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Calendar & Reminders -->
+          <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4 min-h-[350px]">
+            <h3 class="font-bold text-sm">Calendar &amp; Reminders</h3>
+            
+            <!-- Calendar Grid -->
+            <div class="p-2 bg-surface-bright/10 rounded-lg border border-outline-variant/5">
+              <div class="flex justify-between items-center mb-1 text-[10px] font-bold text-primary">
+                <span>June 2026</span>
+                <span class="text-[9px] text-on-surface-variant font-normal">Active Session</span>
+              </div>
+              <div class="grid grid-cols-7 gap-1 text-center font-mono text-[9px]">
+                <span class="text-on-surface-variant">S</span><span class="text-on-surface-variant">M</span><span class="text-on-surface-variant">T</span><span class="text-on-surface-variant">W</span><span class="text-on-surface-variant">T</span><span class="text-on-surface-variant">F</span><span class="text-on-surface-variant">S</span>
+                
+                <span class="text-on-surface-variant/30">31</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">1</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">2</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">3</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">4</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">5</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">6</span>
+                
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">7</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">8</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">9</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">10</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">11</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">12</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">13</span>
+                
+                <!-- Day 14 is active -->
+                <span class="p-1 bg-primary text-on-primary rounded font-bold cursor-pointer shadow-[0_0_8px_rgba(221,183,255,0.7)]" title="Today">14</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">15</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">16</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">17</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">18</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">19</span>
+                <span class="p-1 hover:bg-primary/20 rounded cursor-pointer">20</span>
+              </div>
+            </div>
+
+            <!-- Calendar schedule events list -->
+            <div class="space-y-2">
+              <span class="text-[10px] text-on-surface-variant font-mono uppercase">Upcoming Events</span>
+              <div class="space-y-1.5 text-xs" id="calendar-events-container">
+                <div class="p-2 bg-primary/5 rounded border-l-2 border-primary flex justify-between items-center">
+                  <div>
+                    <span class="font-bold block text-xs">JINI Brain Status Sync</span>
+                    <span class="text-[9px] text-on-surface-variant/60">Today at 18:00</span>
+                  </div>
+                  <span class="material-symbols-outlined text-xs text-primary">notifications_active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEEP RESEARCH PANEL -->
+      <div id="tool-subpanel-research" class="tool-subpanel hidden space-y-4">
+        <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4">
+          <div class="space-y-1">
+            <h3 class="font-bold text-sm">Deep Research Assistant</h3>
+            <p class="text-xs text-on-surface-variant">Performs multi-step search queries, parses web citations, and constructs full reports.</p>
+          </div>
+          
+          <div class="flex gap-2">
+            <input type="text" id="research-query-input" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2.5 focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/40" placeholder="e.g. Current breakthroughs in ambient superconducting materials June 2026">
+            <button class="liquid-button text-xs px-8 py-2 rounded-full font-bold flex items-center gap-1.5" onclick="executeDeepResearch()">
+              <span class="material-symbols-outlined text-sm">travel_explore</span> Search
+            </button>
+          </div>
+
+          <!-- Deep research status logs -->
+          <div id="research-status-logs" class="hidden p-3 bg-surface-bright/20 border border-outline-variant/10 rounded-lg space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-primary flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm animate-spin">sync</span> Research Mode Processing...
+              </span>
+              <span id="research-progress-pct" class="font-mono text-secondary">0%</span>
+            </div>
+            <div class="w-full bg-surface-container-highest h-1 rounded-full overflow-hidden">
+              <div id="research-progress-bar" class="h-full bg-primary w-0 transition-all duration-300"></div>
+            </div>
+            <div class="text-[10px] font-mono text-on-surface-variant/80 h-10 overflow-y-auto" id="research-log-stream">
+              Initializing research agents...
+            </div>
+          </div>
+
+          <!-- Research Output Report -->
+          <div id="research-report-wrapper" class="hidden space-y-3">
+            <div class="flex justify-between items-center border-b border-outline-variant/20 pb-2">
+              <h4 class="text-xs font-bold text-primary font-mono uppercase tracking-wide">Synthesized Report &amp; Source Citations</h4>
+              <button class="text-xs text-secondary font-bold flex items-center gap-1" onclick="copyResearchReport()">
+                <span class="material-symbols-outlined text-xs">content_copy</span> Copy Report
+              </button>
+            </div>
+            <div class="text-xs leading-relaxed p-4 bg-surface-bright/20 border border-outline-variant/10 rounded-lg font-sans max-h-80 overflow-y-auto whitespace-pre-wrap select-all" id="research-report-output">
+              Report will compile here.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. VOICE VIEW -->
+    <section id="page-voice" class="fade-section hidden-section flex flex-col items-center justify-center space-y-8 h-[calc(100vh-220px)] max-w-lg mx-auto">
+      <div class="text-center space-y-2">
+        <h2 class="text-2xl font-extrabold tracking-tight">Real-Time Voice Call</h2>
+        <p class="text-xs text-on-surface-variant" id="voice-status-heading">Voice sync setup is ready. Click call to connect.</p>
+      </div>
+
+      <!-- Giant voice core button -->
+      <button id="voice-activation-circle" class="w-44 h-44 rounded-full border border-primary/20 flex items-center justify-center bg-gradient-to-tr from-primary/10 to-secondary/10 relative cursor-pointer hover:border-primary/50 group transition-all duration-300" onclick="toggleVoiceConnection()">
+        <span id="voice-icon-symbol" class="material-symbols-outlined text-[6rem] text-primary/80 drop-shadow-[0_0_20px_var(--primary)] group-hover:scale-105 transition-transform">call</span>
+        <!-- Outer glow pulsing rings -->
+        <span class="absolute inset-0 w-full h-full rounded-full border border-primary/10 scale-110 hidden animate-ping" id="voice-ring-pulse"></span>
+      </button>
+
+      <!-- Active voice wave simulator -->
+      <div class="voice-wave-container w-full px-6" id="voice-audio-wave">
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+      </div>
+
+      <!-- Realtime transcripts -->
+      <div class="w-full bg-surface-bright/20 border border-outline-variant/15 p-4 rounded-xl text-center min-h-[60px] flex items-center justify-center text-xs italic" id="voice-realtime-transcripts">
+        "Press call above to speak with JINI in hands-free companion mode."
+      </div>
+
+      <!-- Voice preferences configuration -->
+      <div class="w-full grid grid-cols-2 gap-4 text-xs pt-4 border-t border-outline-variant/10">
+        <div class="space-y-1">
+          <label class="text-[10px] text-on-surface-variant font-mono">VOICE IDENTITY</label>
+          <select id="voice-identity-select" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary" onchange="changeVoiceSetting()">
+            <option value="Aria">Aria - Warm &amp; Friendly</option>
+            <option value="Leo">Leo - Professional Agent</option>
+            <option value="Nova">Nova - Cybernetic Voice</option>
+            <option value="Jax">Jax - High Energy</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between bg-surface-bright/20 p-2 rounded-lg border border-outline-variant/10">
+          <span class="font-semibold text-xs">Hands-Free</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="voice-hands-free" class="sr-only peer" checked>
+            <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Interruption status overlay buttons -->
+      <button id="voice-interrupt-btn" class="hidden border border-red-500/30 text-red-500 px-4 py-2 rounded-full text-xs font-semibold bg-red-500/5 hover:bg-red-500/10 active:scale-95 transition-all" onclick="interruptVoiceOutput()">
+        Interrupt JINI Speak
+      </button>
+    </section>
+
+    <!-- 6. PROFILE VIEW -->
+    <section id="page-profile" class="fade-section hidden-section space-y-6">
+      <div class="border-b border-outline-variant/20 pb-4">
+        <h2 class="text-2xl font-extrabold tracking-tight">Account &amp; Personalization</h2>
+        <p class="text-xs text-on-surface-variant">Update identity information, delete companion memories, and toggle security controls.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Identity preferences -->
+        <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest block">Identity Profiles</span>
+          
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-on-primary font-bold text-2xl relative shadow-lg" id="profile-main-avatar">
+              D
+            </div>
+            <div class="space-y-1">
+              <h3 class="font-bold text-sm" id="profile-display-name">Divyansh</h3>
+              <span class="text-[9px] outline-chip px-2 py-0.5 rounded-full" id="profile-badge-label">FREE COMPANION</span>
+            </div>
+          </div>
+
+          <div class="space-y-1 pt-2">
+            <label class="text-xs font-semibold">Custom Companion Name</label>
+            <input type="text" id="pref-user-name" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 focus:ring-1 focus:ring-primary" value="Divyansh" oninput="updateProfileName(this.value)">
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold">Appearance Theme</label>
+            <div class="flex gap-2">
+              <button class="flex-1 text-xs py-2 rounded-lg font-bold border border-primary bg-primary/10 text-primary" id="theme-btn-dark" onclick="setThemeMode('dark')">Dark mode</button>
+              <button class="flex-1 text-xs py-2 rounded-lg font-semibold border border-outline-variant/30 text-on-surface-variant" id="theme-btn-light" onclick="setThemeMode('light')">Light mode</button>
+            </div>
+          </div>
+
+          <div class="space-y-1 pt-2 border-t border-outline-variant/10">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-semibold">Gemini API Key</label>
+              <a href="https://aistudio.google.com/" target="_blank" class="text-[10px] text-primary hover:underline">Get Key ↗</a>
+            </div>
+            <div class="relative">
+              <input type="password" id="pref-gemini-key" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-2 pr-8 focus:ring-1 focus:ring-primary" placeholder="AI Studio API Key" oninput="saveGeminiKey(this.value)">
+              <button class="absolute right-2.5 top-2.5 text-on-surface-variant/60 hover:text-on-surface" onclick="toggleKeyVisibility()">
+                <span class="material-symbols-outlined text-xs" id="key-visibility-icon">visibility</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brain Memory Manager -->
+        <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest">JINI Learning memory log</span>
+              <button class="text-[10px] text-error font-bold hover:underline" onclick="clearAllMemoryLogs()">Clear All</button>
+            </div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">These facts were learned organically during your active chats. JINI utilizes these details to customize your recommendations.</p>
+            
+            <div class="space-y-2 max-h-40 overflow-y-auto hide-scrollbar" id="profile-memory-list">
+              <!-- Memory logs loaded in app.js -->
+            </div>
+          </div>
+          <div class="text-[9px] font-mono text-on-surface-variant/60">Memory size: <span id="memory-size-counter">4</span> records active</div>
+        </div>
+
+        <!-- Security & Privacy controls -->
+        <div class="bg-surface-container/20 border border-outline-variant/10 rounded-lg p-5 space-y-4">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest block">Security Configuration</span>
+          
+          <div class="space-y-3 pt-2">
+            <div class="flex justify-between items-center text-xs">
+              <div>
+                <span class="font-semibold block">Data Encryption Status</span>
+                <span class="text-[10px] text-on-surface-variant">Encrypt all chats &amp; notes</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="encryption-toggle" class="sr-only peer" checked>
+                <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+
+            <div class="flex justify-between items-center text-xs border-t border-outline-variant/10 pt-3">
+              <div>
+                <span class="font-semibold block">Privacy Mode Tracking</span>
+                <span class="text-[10px] text-on-surface-variant">Do not log conversations locally</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="privacy-toggle" class="sr-only peer">
+                <div class="w-8 h-4 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+
+            <div class="border-t border-outline-variant/10 pt-3 flex flex-col gap-2">
+              <button class="w-full py-2 bg-surface-bright/30 border border-outline-variant/20 hover:border-primary/50 text-xs font-semibold rounded-lg flex items-center justify-center gap-1" onclick="showAuthModal()">
+                <span class="material-symbols-outlined text-sm text-primary">sync</span> Sync across other devices
+              </button>
+              <button class="w-full py-2 border border-red-500/20 text-red-400 hover:bg-red-500/5 text-xs font-semibold rounded-lg" onclick="simulateSignOut()">
+                Sign out of device account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FLOATING SEARCH BAR (Quick Action overlay when pressing enter or asking on other pages) -->
+  <div class="search-bar-container fixed left-0 right-0 z-40 px-6 max-w-lg mx-auto pointer-events-none" id="global-search-container">
+    <div class="pointer-events-auto bg-surface-container-lowest/70 backdrop-blur-3xl border border-primary/25 rounded-full h-14 flex items-center px-5 shadow-[0_10px_35px_rgba(0,0,0,0.5),0_0_20px_rgba(221,183,255,0.15)] group transition-all focus-within:ring-2 focus-within:ring-primary/40">
+      <span class="material-symbols-outlined text-primary/70 mr-3 animate-pulse">magic_button</span>
+      <input type="text" id="global-search-input" class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-on-surface-variant/40 font-semibold text-xs" placeholder="Ask JINI anything..." onkeydown="handleGlobalSearchKeydown(event)"/>
+      <button class="p-2 rounded-full bg-primary text-on-primary hover:scale-110 active:scale-90 transition-transform" onclick="submitGlobalSearch()">
+        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav-container fixed left-0 right-0 z-50 max-w-lg mx-auto flex justify-around items-center h-20 px-4 bg-surface-container/20 backdrop-blur-2xl border border-outline-variant/15 rounded-full mx-6 shadow-[0_0_25px_rgba(221,183,255,0.15)]">
+    <!-- Home Active -->
+    <a id="nav-home" class="flex flex-col items-center justify-center text-primary drop-shadow-[0_0_8px_rgba(221,183,255,0.8)] scale-110 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">home</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Home</span>
+    </a>
+    <a id="nav-chat" class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-primary/80 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined text-lg">magic_button</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Chat</span>
+    </a>
+    <a id="nav-workspace" class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-primary/80 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('workspace')">
+      <span class="material-symbols-outlined text-lg">grid_view</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Workspace</span>
+    </a>
+    <a id="nav-tools" class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-primary/80 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('tools')">
+      <span class="material-symbols-outlined text-lg">construction</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Tools</span>
+    </a>
+    <a id="nav-voice" class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-primary/80 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('voice')">
+      <span class="material-symbols-outlined text-lg">call</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Voice</span>
+    </a>
+    <a id="nav-profile" class="flex flex-col items-center justify-center text-on-surface-variant/60 hover:text-primary/80 transition-all active:scale-90 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] cursor-pointer" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined text-lg">person</span>
+      <span class="font-mono text-[9px] uppercase tracking-wider mt-1">Profile</span>
+    </a>
+  </nav>
+
+  <!-- INTERACTIVE MODALS -->
+  <!-- 1. Monetization Pricing Upgrade Modal -->
+  <dialog id="upgrade-modal" class="bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm p-4 w-full max-w-md focus:outline-none">
+    <div class="glass-panel rounded-xl p-6 space-y-6 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none"></div>
+      
+      <div class="flex justify-between items-start">
+        <div class="space-y-1">
+          <h3 class="text-xl font-bold">Upgrade to JINI Pro</h3>
+          <p class="text-xs text-on-surface-variant">Unlock premium features, neural memory, and faster responses.</p>
+        </div>
+        <button class="p-1 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-bright/20" onclick="closeModal('upgrade-modal')">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Payment Form simulation -->
+      <div id="payment-stage-form" class="space-y-4">
+        <div class="p-3 bg-primary/10 rounded-lg border border-primary/20 text-xs flex justify-between items-center font-semibold text-primary">
+          <span>JINI Pro Monthly Subscription</span>
+          <span id="selected-upgrade-price">$15.00/mo</span>
+        </div>
+        
+        <div class="space-y-3 text-xs">
+          <div class="space-y-1">
+            <label class="font-semibold text-on-surface-variant">Cardholder Name</label>
+            <input type="text" id="payment-card-name" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs" value="Divyansh">
+          </div>
+          <div class="space-y-1">
+            <label class="font-semibold text-on-surface-variant">Card Number</label>
+            <div class="relative">
+              <input type="text" id="payment-card-number" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 pl-3 pr-10 focus:ring-1 focus:ring-primary text-xs font-mono" placeholder="4111 2222 3333 4444" maxlength="19">
+              <span class="material-symbols-outlined absolute right-3 top-2 text-lg text-on-surface-variant/60">credit_card</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+              <label class="font-semibold text-on-surface-variant">Expiry Date</label>
+              <input type="text" id="payment-card-expiry" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs font-mono" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="space-y-1">
+              <label class="font-semibold text-on-surface-variant">CVC Code</label>
+              <input type="password" id="payment-card-cvc" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs font-mono" placeholder="•••" maxlength="3">
+            </div>
+          </div>
+        </div>
+
+        <button class="w-full liquid-button py-3 rounded-full font-bold text-xs flex items-center justify-center gap-1.5" onclick="processUpgradePayment()">
+          <span class="material-symbols-outlined text-sm">lock</span> Complete Secure Purchase
+        </button>
+      </div>
+
+      <!-- Payment Success stage -->
+      <div id="payment-stage-success" class="hidden flex flex-col items-center justify-center text-center p-6 space-y-4">
+        <div class="w-16 h-16 rounded-full bg-[#39ff14]/10 border border-[#39ff14]/30 flex items-center justify-center text-[#39ff14] shadow-[0_0_15px_rgba(57,255,20,0.2)]">
+          <span class="material-symbols-outlined text-4xl">check_circle</span>
+        </div>
+        <div class="space-y-1">
+          <h4 class="font-bold text-lg">Payment Successful!</h4>
+          <p class="text-xs text-on-surface-variant">Welcome to JINI Pro. Neural Sync speeds have been maximized.</p>
+        </div>
+        <button class="w-full border border-outline-variant/30 hover:border-primary/50 py-2.5 rounded-full text-xs font-semibold" onclick="closeModal('upgrade-modal')">Let's Go</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 2. Secure Auth Login Modal -->
+  <dialog id="auth-modal" class="bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm p-4 w-full max-w-md focus:outline-none">
+    <div class="glass-panel rounded-xl p-6 space-y-6 relative overflow-hidden">
+      <div class="flex justify-between items-start border-b border-outline-variant/15 pb-3">
+        <div>
+          <h3 class="text-xl font-bold">Secure Account Sync</h3>
+          <p class="text-xs text-on-surface-variant">Log in to backup chats, projects, workspaces, and habits.</p>
+        </div>
+        <button class="p-1 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-bright/20" onclick="closeModal('auth-modal')">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Google Login Simulation -->
+        <button class="w-full py-3 bg-surface-bright/40 border border-outline-variant/30 hover:border-primary/50 text-xs font-semibold rounded-full flex items-center justify-center gap-2 transition-all" onclick="simulateGoogleLogin()">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+          </svg>
+          Sync with Google Authentication
+        </button>
+
+        <div class="flex items-center justify-center text-[10px] text-on-surface-variant/40 font-mono py-1">
+          <span class="border-b border-outline-variant/10 w-full"></span>
+          <span class="px-2">OR</span>
+          <span class="border-b border-outline-variant/10 w-full"></span>
+        </div>
+
+        <!-- Email Login Simulation -->
+        <div class="space-y-3 text-xs">
+          <div class="space-y-1">
+            <label class="font-semibold text-on-surface-variant">Email Address</label>
+            <input type="email" id="auth-email-input" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs" placeholder="name@domain.com">
+          </div>
+          <div class="space-y-1">
+            <label class="font-semibold text-on-surface-variant">Password</label>
+            <input type="password" id="auth-password-input" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs" placeholder="••••••••">
+          </div>
+          
+          <button class="w-full liquid-button py-2.5 rounded-full font-bold text-xs mt-2" onclick="simulateEmailLogin()">
+            Sign In with Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 3. Share Workspace Modal -->
+  <dialog id="share-workspace-modal" class="bg-transparent backdrop:bg-black/60 backdrop:backdrop-blur-sm p-4 w-full max-w-md focus:outline-none">
+    <div class="glass-panel rounded-xl p-6 space-y-6 relative overflow-hidden">
+      <div class="flex justify-between items-start border-b border-outline-variant/15 pb-3">
+        <div>
+          <h3 class="text-xl font-bold">Collaborative Team Settings</h3>
+          <p class="text-xs text-on-surface-variant">Generate external sharing links with role access controls.</p>
+        </div>
+        <button class="p-1 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-bright/20" onclick="closeModal('share-workspace-modal')">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="space-y-1">
+          <label class="font-semibold text-on-surface-variant">Sharing Permission Role</label>
+          <select id="share-permission-role" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg py-2 focus:ring-1 focus:ring-primary text-xs">
+            <option value="view">Viewer (Read logs &amp; files)</option>
+            <option value="edit">Editor (Modify code, notes, &amp; prompts)</option>
+            <option value="admin">Administrator (Full workspace controls)</option>
+          </select>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-semibold text-on-surface-variant">Secure Generated Share Link</label>
+          <div class="flex gap-2">
+            <input type="text" id="workspace-share-link" class="w-full bg-surface-bright/30 border border-outline-variant/20 rounded-lg py-2 px-3 text-xs focus:ring-0 font-mono text-secondary truncate" readonly value="https://jini.ai/workspace/share/ws_82f16x11">
+            <button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-bold hover:scale-105 active:scale-95 transition-transform" onclick="copyShareWorkspaceLink()">Copy</button>
+          </div>
+        </div>
+
+        <!-- Active members simulation -->
+        <div class="border-t border-outline-variant/10 pt-3 space-y-2">
+          <span class="text-[10px] text-on-surface-variant font-mono uppercase">Workspace Active Members</span>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center bg-surface-bright/10 p-2 rounded border border-outline-variant/5">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-primary text-[10px] font-bold">D</div>
+                <span class="font-semibold text-xs">Divyansh (You)</span>
+              </div>
+              <span class="text-[9px] outline-chip px-1.5 py-0.2 rounded font-bold">ADMIN</span>
+            </div>
+            <div class="flex justify-between items-center bg-surface-bright/10 p-2 rounded border border-outline-variant/5">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-secondary/20 flex items-center justify-center text-secondary text-[10px] font-bold">A</div>
+                <span class="font-semibold text-xs">Alex Chen</span>
+              </div>
+              <span class="text-[9px] text-on-surface-variant font-mono">EDITOR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Application Logic Link -->
+  <script src="app.js?v=2"></script>
+</body>
+</html>
