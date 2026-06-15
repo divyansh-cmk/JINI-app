@@ -55,6 +55,15 @@ async function main() {
   });
   console.log(`🎉 Commit created successfully with SHA: ${sha}`);
 
+  console.log("🌱 Creating local branch 'main'...");
+  await git.branch({
+    fs,
+    dir,
+    ref: 'main',
+    force: true
+  });
+  console.log("✅ Local branch 'main' created.");
+
   console.log("🔗 Mapping remote repository origin...");
   try {
     await git.addRemote({
