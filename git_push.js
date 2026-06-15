@@ -31,7 +31,10 @@ async function main() {
     }
     
     // stage modifications or new files
-    if (workdir !== head || stage !== 1) {
+    if (workdir === 0) {
+      await git.remove({ fs, dir, filepath });
+      addedCount++;
+    } else if (workdir !== head || stage !== 1) {
       await git.add({ fs, dir, filepath });
       addedCount++;
     }

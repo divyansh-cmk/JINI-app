@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // support large base64 image uploads
 
 // Serve static frontend assets from the current directory
-app.use(express.static(path.join(__dirname, '.')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // --- JINI PERSONALITY DEFINITIONS ---
 const PERSONALITY_PROMPTS = {
