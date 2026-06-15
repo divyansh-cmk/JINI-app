@@ -17,8 +17,8 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // support large base64 image uploads
 
-// Serve static frontend assets from the parent directory (root directory)
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static frontend assets from the public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // --- JINI PERSONALITY DEFINITIONS ---
 const PERSONALITY_PROMPTS = {
@@ -294,7 +294,7 @@ function getMockReply(query, personality, brainMode) {
 
 // Catch-all route to serve index.html for any other frontend routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../index.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 // Export app for serverless deployment (Vercel)
