@@ -476,6 +476,27 @@
             </select>
           </div>
 
+          <div class="space-y-1">
+            <label class="text-[10px] text-on-surface-variant font-mono uppercase">AI Provider</label>
+            <select id="chat-provider-select" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary" onchange="changeChatProvider(this.value)">
+              <option value="gemini">Google Gemini</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic Claude</option>
+              <option value="groq">Groq</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="together">Together AI</option>
+              <option value="huggingface">Hugging Face</option>
+              <option value="ollama">Ollama (Local)</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] text-on-surface-variant font-mono uppercase">AI Model</label>
+            <select id="chat-model-select" class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg text-xs py-1.5 focus:ring-1 focus:ring-primary" onchange="changeChatModel(this.value)">
+              <!-- Loaded dynamically in app.js -->
+            </select>
+          </div>
+
           <div class="flex items-center justify-between text-xs bg-surface-bright/20 p-2 rounded-lg">
             <span class="font-semibold text-xs flex items-center gap-1"><span class="material-symbols-outlined text-sm text-primary">psychology</span> JINI Brain</span>
             <label class="relative inline-flex items-center cursor-pointer">

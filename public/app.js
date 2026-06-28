@@ -8,6 +8,8 @@
 const STATE = {
   activePage: 'home',
   theme: 'dark',
+  provider: 'gemini',
+  model: 'gemini-2.5-flash',
   geminiApiKey: '',
   user: {
     name: 'Divyansh',
@@ -81,6 +83,77 @@ const STATE = {
   activeUploadedFiles: []
 };
 
+// --- PROVIDERS & MODELS CONFIGURATION ---
+const PROVIDER_MODELS = {
+  gemini: [
+    { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+    { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' }
+  ],
+  openai: [
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+    { value: 'gpt-4o', label: 'GPT-4o' },
+    { value: 'o1-mini', label: 'o1 Mini' }
+  ],
+  anthropic: [
+    { value: 'claude-3-5-haiku-latest', label: 'Claude 3.5 Haiku' },
+    { value: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet' }
+  ],
+  groq: [
+    { value: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70b' },
+    { value: 'mixtral-8x7b-32768', label: 'Mixtral 8x7b' },
+    { value: 'gemma2-9b-it', label: 'Gemma 2 9b' }
+  ],
+  openrouter: [
+    { value: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70b (OR)' },
+    { value: 'google/gemini-2.5-flash', label: 'Gemini 2.5 Flash (OR)' }
+  ],
+  together: [
+    { value: 'meta-llama/Llama-3.3-70b-Instruct-Turbo', label: 'Llama 3.3 70b (Together)' },
+    { value: 'mistralai/Mixtral-8x7B-Instruct-v0.1', label: 'Mixtral 8x7b (Together)' }
+  ],
+  huggingface: [
+    { value: 'meta-llama/Llama-3.2-3B-Instruct', label: 'Llama 3.2 3B' }
+  ],
+  ollama: [
+    { value: 'llama3', label: 'Llama 3 (Local)' },
+    { value: 'mistral', label: 'Mistral (Local)' }
+  ]
+};
+
+function syncProviderModelsDropdown(providerVal) {
+  const modelSelect = document.getElementById('chat-model-select');
+  if (modelSelect) {
+    modelSelect.innerHTML = '';
+    const models = PROVIDER_MODELS[providerVal] || [];
+    models.forEach(model => {
+      const option = document.createElement('option');
+      option.value = model.value;
+      option.textContent = model.label;
+      modelSelect.appendChild(option);
+    });
+  }
+}
+
+function changeChatProvider(val) {
+  STATE.provider = val;
+  syncProviderModelsDropdown(val);
+  const models = PROVIDER_MODELS[val] || [];
+  if (models.length > 0) {
+    STATE.model = models[0].value;
+    const modelSelect = document.getElementById('chat-model-select');
+    if (modelSelect) {
+      modelSelect.value = STATE.model;
+    }
+  }
+  saveStateToStorage();
+}
+
+function changeChatModel(val) {
+  STATE.model = val;
+  saveStateToStorage();
+}
+
 // --- INITIALIZATION ---
 function initializeApp() {
   // Load saved state if exists
@@ -104,6 +177,18 @@ function initializeApp() {
   const keyInput = document.getElementById('pref-gemini-key');
   if (keyInput) keyInput.value = STATE.geminiApiKey || '';
 
+  // Initialize Provider / Model dropdowns in the sidebar
+  const providerSelect = document.getElementById('chat-provider-select');
+  if (providerSelect) {
+    providerSelect.value = STATE.provider || 'gemini';
+    syncProviderModelsDropdown(providerSelect.value);
+    
+    const modelSelect = document.getElementById('chat-model-select');
+    if (modelSelect && STATE.model) {
+      modelSelect.value = STATE.model;
+    }
+  }
+
   // Periodically fluctuate stability bar
   setInterval(fluctuateStability, 3000);
 }
@@ -124,6 +209,8 @@ window.handleDocumentUpload = handleDocumentUpload;
 window.handleImageUpload = handleImageUpload;
 window.removeUploadedFile = removeUploadedFile;
 window.changeChatPersonality = changeChatPersonality;
+window.changeChatProvider = changeChatProvider;
+window.changeChatModel = changeChatModel;
 window.toggleChatVoiceDictation = toggleChatVoiceDictation;
 window.sendChatMessage = sendChatMessage;
 window.selectWorkspaceFolder = selectWorkspaceFolder;
@@ -188,6 +275,8 @@ if (document.readyState === 'loading') {
 function saveStateToStorage() {
   localStorage.setItem('jini_state', JSON.stringify({
     theme: STATE.theme,
+    provider: STATE.provider,
+    model: STATE.model,
     geminiApiKey: STATE.geminiApiKey,
     user: STATE.user,
     notes: STATE.notes,
@@ -204,6 +293,8 @@ function loadStateFromStorage() {
     try {
       const parsed = JSON.parse(saved);
       STATE.theme = parsed.theme || STATE.theme;
+      STATE.provider = parsed.provider || 'gemini';
+      STATE.model = parsed.model || 'gemini-2.5-flash';
       STATE.geminiApiKey = parsed.geminiApiKey || '';
       STATE.user = parsed.user || STATE.user;
       STATE.notes = parsed.notes || STATE.notes;
@@ -678,21 +769,13 @@ function toggleChatVoiceDictation() {
   }
 }
 
-function appendChatMessageUI(sender, text) {
-  const screen = document.getElementById('chat-message-screen');
-  if (!screen) return;
-  
-  const outer = document.createElement('div');
-  outer.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start items-start gap-2 max-w-[85%]'}`;
-  
-  // Format message lines. Wrap JINI Brain reasoning inside disclosures if exists
-  let formattedText = text;
+function formatJiniMessage(text) {
   if (text.includes('🧠 JINI Brain Reasoning:')) {
     const parts = text.split('\n\n');
     const brainReasoning = parts[0].replace('🧠 JINI Brain Reasoning:\n', '');
-    const actualResponse = parts[1] || '';
+    const actualResponse = parts.slice(1).join('\n\n') || '';
     
-    formattedText = `
+    return `
       <details name="brain-steps" class="mb-3 border border-primary/20 rounded-lg p-2.5 bg-primary/5 text-[11px]" open>
         <summary class="font-mono text-primary font-bold cursor-pointer outline-none select-none list-none flex justify-between items-center">
           <span>🧠 JINI Brain Reasoning Process</span>
@@ -700,12 +783,21 @@ function appendChatMessageUI(sender, text) {
         </summary>
         <div class="mt-2 text-on-surface-variant font-mono space-y-1.5 whitespace-pre-wrap">${brainReasoning}</div>
       </details>
-      <p class="text-xs leading-relaxed">${actualResponse}</p>
+      <p class="text-xs leading-relaxed whitespace-pre-wrap">${actualResponse}</p>
     `;
   } else {
-    // Normal text lines
-    formattedText = `<p class="text-xs leading-relaxed whitespace-pre-wrap">${text}</p>`;
+    return `<p class="text-xs leading-relaxed whitespace-pre-wrap">${text}</p>`;
   }
+}
+
+function appendChatMessageUI(sender, text) {
+  const screen = document.getElementById('chat-message-screen');
+  if (!screen) return;
+  
+  const outer = document.createElement('div');
+  outer.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start items-start gap-2 max-w-[85%]'}`;
+  
+  const formattedText = formatJiniMessage(text);
 
   if (sender === 'user') {
     outer.innerHTML = `
@@ -810,7 +902,11 @@ function sendChatMessage() {
           'Content-Type': 'application/json',
           'x-gemini-key': STATE.geminiApiKey || ''
         },
-        body: JSON.stringify({ image: base64Data })
+        body: JSON.stringify({
+          image: base64Data,
+          provider: STATE.provider,
+          model: STATE.model
+        })
       })
       .then(res => res.json())
       .then(data => {
@@ -825,29 +921,111 @@ function sendChatMessage() {
     };
     reader.readAsDataURL(imgFile.fileRaw);
   } else {
-    // standard chat API
-    fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-gemini-key': STATE.geminiApiKey || ''
-      },
-      body: JSON.stringify({
-        messages: activeChat.messages,
-        personality: STATE.personality,
-        brainMode: STATE.brainMode
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      processResponse(data.text);
-    })
-    .catch(err => {
-      console.error('Chat API error:', err);
-      const ind = document.getElementById('jini-typing-indicator');
-      if (ind) ind.remove();
-      appendChatMessageUI('jini', '⚠️ Synaptic network error. Connect server or verify host.');
-    });
+    // Standard chat API with Server-Sent Events (SSE) streaming
+    (async () => {
+      let accumulatedText = '';
+      let textContainer = null;
+      let outer = null;
+      
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-gemini-key': STATE.geminiApiKey || ''
+          },
+          body: JSON.stringify({
+            messages: activeChat.messages,
+            personality: STATE.personality,
+            brainMode: STATE.brainMode,
+            provider: STATE.provider,
+            model: STATE.model,
+            stream: true
+          })
+        });
+
+        const ind = document.getElementById('jini-typing-indicator');
+        if (ind) ind.remove();
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(errText || `Server error ${response.status}`);
+        }
+
+        // Append blank message bubble for streaming text
+        outer = document.createElement('div');
+        outer.className = 'flex justify-start items-start gap-2 max-w-[85%]';
+        outer.innerHTML = `
+          <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-primary/20 bg-surface-container-low">
+            <img src="logo.png?v=1" alt="JINI" class="w-full h-full object-cover"/>
+          </div>
+          <div class="message-bubble-jini p-4 rounded-lg shadow-sm flex-grow">
+            <div class="stream-text"></div>
+          </div>
+        `;
+        screen.appendChild(outer);
+        scrollChatBottom();
+        textContainer = outer.querySelector('.stream-text');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ')) {
+              const dataStr = trimmed.slice(6).trim();
+              if (dataStr === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.error) {
+                  throw new Error(parsed.error);
+                }
+                const chunkText = parsed.text;
+                if (chunkText) {
+                  accumulatedText += chunkText;
+                  textContainer.innerHTML = formatJiniMessage(accumulatedText);
+                  scrollChatBottom();
+                }
+              } catch (e) {
+                // Ignore JSON parse errors for incomplete chunk lines
+              }
+            }
+          }
+        }
+
+        // Push completed message to state conversation history
+        activeChat.messages.push({ sender: 'jini', text: accumulatedText });
+        checkOrganicLearning(text);
+
+        // Speak response if voice active
+        if (STATE.voiceState.speaking || STATE.activePage === 'voice') {
+          const cleanSpokenText = accumulatedText.includes('🧠 JINI Brain Reasoning:')
+            ? accumulatedText.split('\n\n')[1] || accumulatedText
+            : accumulatedText;
+          speakText(cleanSpokenText);
+        }
+
+      } catch (err) {
+        console.error('Chat API SSE stream error:', err);
+        const ind = document.getElementById('jini-typing-indicator');
+        if (ind) ind.remove();
+        
+        if (textContainer) {
+          textContainer.innerHTML = `<span class="text-error font-semibold">⚠️ Synaptic network error: ${err.message}</span>`;
+        } else {
+          appendChatMessageUI('jini', `⚠️ Synaptic network error: ${err.message}`);
+        }
+      }
+    })();
   }
 }
 
@@ -1167,7 +1345,15 @@ function executeWritingTool() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ type, title, instructions: promptText, tone, length })
+    body: JSON.stringify({
+      type,
+      title,
+      instructions: promptText,
+      tone,
+      length,
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
@@ -1225,7 +1411,12 @@ function generateTopicExplanation() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ module: 'explain', topic })
+    body: JSON.stringify({
+      module: 'explain',
+      topic,
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
@@ -1254,7 +1445,12 @@ function solveMathProblem() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ module: 'math', topic: prob })
+    body: JSON.stringify({
+      module: 'math',
+      topic: prob,
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
@@ -1284,7 +1480,13 @@ function translateText() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ module: 'translator', text, targetLang: lang })
+    body: JSON.stringify({
+      module: 'translator',
+      text,
+      targetLang: lang,
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
@@ -1325,7 +1527,11 @@ function createQuiz() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ module: 'quiz' })
+    body: JSON.stringify({
+      module: 'quiz',
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
@@ -1604,7 +1810,11 @@ function executeDeepResearch() {
       'Content-Type': 'application/json',
       'x-gemini-key': STATE.geminiApiKey || ''
     },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({
+      query,
+      provider: STATE.provider,
+      model: STATE.model
+    })
   })
   .then(res => res.json())
   .then(data => {
