@@ -6,13 +6,20 @@ class OpenAIProvider extends BaseProvider {
     this.defaultModel = config.defaultModel || 'gpt-4o-mini';
   }
 
-  async generate(messages, systemPrompt, model, stream, onChunk) {
+  async generate(messages, systemPrompt, model, stream, onChunk, options = {}) {
     const activeModel = model || this.defaultModel;
     const url = `${this.baseURL}/chat/completions`;
     const key = this.apiKey;
 
-    if (!key) {
-      throw new Error(`API key is not configured for provider using baseURL: ${this.baseURL}`);
+    // Determine provider name from url
+    let providerName = 'openai';
+    if (url.includes('groq.com')) providerName = 'groq';
+    else if (url.includes('openrouter.ai')) providerName = 'openrouter';
+    else if (url.includes('together.xyz')) providerName = 'together';
+    else if (url.includes('huggingface.co')) providerName = 'huggingface';
+
+    if (this.isPlaceholder()) {
+      return this.generateSimulated(messages, systemPrompt, model, stream, onChunk, options, providerName);
     }
 
     // Standard OpenAI payload messages

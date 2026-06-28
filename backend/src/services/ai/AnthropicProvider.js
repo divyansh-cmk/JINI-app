@@ -6,13 +6,13 @@ class AnthropicProvider extends BaseProvider {
     this.defaultModel = config.defaultModel || 'claude-3-5-haiku-latest';
   }
 
-  async generate(messages, systemPrompt, model, stream, onChunk) {
+  async generate(messages, systemPrompt, model, stream, onChunk, options = {}) {
     const activeModel = model || this.defaultModel;
     const url = 'https://api.anthropic.com/v1/messages';
     const key = this.apiKey;
 
-    if (!key) {
-      throw new Error('Anthropic Claude API key is not configured.');
+    if (this.isPlaceholder()) {
+      return this.generateSimulated(messages, systemPrompt, model, stream, onChunk, options, 'anthropic');
     }
 
     // Anthropic requires messages to only contain 'user' and 'assistant' roles.

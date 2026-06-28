@@ -10,8 +10,8 @@ class GeminiProvider extends BaseProvider {
     const activeModel = model || this.defaultModel;
     const key = this.apiKey;
 
-    if (!key) {
-      throw new Error('Gemini API key is not configured.');
+    if (this.isPlaceholder()) {
+      return this.generateSimulated(messages, systemPrompt, model, stream, onChunk, options, 'gemini');
     }
 
     const bodyPayload = {
