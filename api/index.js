@@ -280,11 +280,11 @@ function getMockReply(query, personality, brainMode) {
     text = "Here is a clean Node.js implementation to sign JSON Web Tokens:\n\nconst jwt = require('jsonwebtoken');\n\nfunction generateUserToken(userPayload) {\n  const secretKey = process.env.JWT_SECRET || 'nebula_glow_key';\n  return jwt.sign(userPayload, secretKey, { expiresIn: '24h' });\n}\n\nThis token will expire automatically after 24 hours.";
   } else {
     const responses = {
-      friendly: "Yo! That is super interesting. I've logged that query in my active neural buffer. How else can we collaborate on your workspaces today, bestie?",
-      professional: "Thank you for the prompt. I have processed the inputs using the current intelligence module. Please let me know how you would like to proceed with the execution steps.",
-      coding: "Syntax check passed. That approach looks optimized. Let me know if you need to draft unit tests, configure environment variables, or build custom routes for this codebase.",
+      friendly: "I have received your query and logged it in my active neural buffer. How else can I assist you with your workspaces today?",
+      professional: "Thank you for your prompt. I have processed the inputs using the current intelligence module. Please let me know how you would like to proceed.",
+      coding: "Syntax check passed. That approach looks optimized. Let me know if you need to draft unit tests, configure environment variables, or build custom routes.",
       academic: "A thorough review of the criteria indicates a strong correlation between the subjects. Let's break down the definitions further if you need step-by-step notes.",
-      creative: "A spark of inspiration! We can weave this theme into your notes, story boards, or concept drafts. Let's paint this obsidian canvas with primary neons."
+      creative: "A spark of inspiration! We can weave this theme into your notes, story boards, or concept drafts."
     };
     text = responses[personality] || responses.friendly;
   }
