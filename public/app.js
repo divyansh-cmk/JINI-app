@@ -967,36 +967,47 @@ function sendChatMessage() {
         scrollChatBottom();
         textContainer = outer.querySelector('.stream-text');
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          accumulatedText = data.text || '';
+          textContainer.innerHTML = formatJiniMessage(accumulatedText);
+          scrollChatBottom();
+        } else {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop();
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('data: ')) {
-              const dataStr = trimmed.slice(6).trim();
-              if (dataStr === '[DONE]') continue;
-              try {
-                const parsed = JSON.parse(dataStr);
-                if (parsed.error) {
-                  throw new Error(parsed.error);
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('data: ')) {
+                const dataStr = trimmed.slice(6).trim();
+                if (dataStr === '[DONE]') continue;
+                try {
+                  const parsed = JSON.parse(dataStr);
+                  if (parsed.error) {
+                    throw new Error(parsed.error);
+                  }
+                  const chunkText = parsed.text;
+                  if (chunkText) {
+                    accumulatedText += chunkText;
+                    textContainer.innerHTML = formatJiniMessage(accumulatedText);
+                    scrollChatBottom();
+                  }
+                } catch (e) {
+                  // Ignore JSON parse errors for incomplete chunk lines
                 }
-                const chunkText = parsed.text;
-                if (chunkText) {
-                  accumulatedText += chunkText;
-                  textContainer.innerHTML = formatJiniMessage(accumulatedText);
-                  scrollChatBottom();
-                }
-              } catch (e) {
-                // Ignore JSON parse errors for incomplete chunk lines
               }
             }
           }
