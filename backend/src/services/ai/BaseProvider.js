@@ -3,7 +3,14 @@
  */
 class BaseProvider {
   constructor(config = {}) {
-    this.apiKey = config.apiKey || '';
+    let apiKey = config.apiKey || '';
+    if (apiKey) {
+      apiKey = apiKey.trim();
+      if (apiKey.endsWith('.')) {
+        apiKey = apiKey.slice(0, -1);
+      }
+    }
+    this.apiKey = apiKey;
     this.baseURL = config.baseURL || '';
     this.defaultModel = config.defaultModel || '';
   }

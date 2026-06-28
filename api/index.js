@@ -31,7 +31,13 @@ const PERSONALITY_PROMPTS = {
 
 // --- GEMINI API CALL HELPER ---
 async function callGemini(contents, systemInstructionText = "", useSearch = false, clientKey = "") {
-  const apiKey = clientKey || process.env.GEMINI_API_KEY;
+  let apiKey = clientKey || process.env.GEMINI_API_KEY;
+  if (apiKey) {
+    apiKey = apiKey.trim();
+    if (apiKey.endsWith('.')) {
+      apiKey = apiKey.slice(0, -1);
+    }
+  }
   
   if (!apiKey || apiKey === "your_gemini_api_key_here") {
     console.warn("⚠️ GEMINI_API_KEY is not configured. Running in mock fallback mode.");
